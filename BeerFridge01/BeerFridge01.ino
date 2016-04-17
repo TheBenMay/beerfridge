@@ -1,4 +1,7 @@
 #include <math.h>
+#include <LiquidCrystal.h>
+
+LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
 
 double Thermistor(int RawADC) {
  double Temp;
@@ -9,17 +12,44 @@ double Thermistor(int RawADC) {
  return Temp;
 }
 
+double setTemp = 65.00;
+const int upButtonPin = 7;
+const int downButtonPin = 6;
+int upButtonState = 0;
+int downButtonState = 0;
+
 void setup() {
  Serial.begin(9600);
+ pinMode(8, OUTPUT);
+ lcd.begin(16, 2);
+ pinMode(upButtonPin, INPUT);
+ pinMode(downButtonPin, INPUT);
 }
 
 void loop() {             
   int val;                
-  double temp;            
+  double temp;         
   val=analogRead(0);      
-  temp=Thermistor(val);   
-  Serial.print("Temperature = ");
-  Serial.print(temp);   
-  Serial.println(" F");
-  delay(5000);            
+  temp=Thermistor(val);
+  if (temp > setTemp) {
+    digitalWrite(8, HIGH);
+  } else {
+    digitalWrite(8, LOW);
+  }
+  lcd.print("Temp = ");
+  lcd.print(temp);   
+  lcd.print(" F");
+  lcd.setCursor(0,1);
+  lcd.print("SetTemp = ");
+  lcd.print(setTemp);
+  delay(1000);            
+  lcd.clear();
+  upButtonState = digitalRead(upButtonPin);
+  downButtonState = digitalRead(downButtonPin);
+  if (upButtonState == HIGH) {
+    setTemp++;
+  }
+  if (downButtonState == HIGH) {
+    setTemp--;
+  }
 }

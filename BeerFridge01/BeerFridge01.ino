@@ -48,10 +48,10 @@ void changeTempLoop () {
   if (downButtonState == HIGH) {
     setTemp--;
   }
+  delay(1000);
 }
 
 void loop() {             
-
   if (temp > setTemp) {
     digitalWrite(8, HIGH);
   } else {

@@ -16,7 +16,9 @@ double setTemp = 65.00;
 const int upButtonPin = 7;
 const int downButtonPin = 6;
 int upButtonState = 0;
-int downButtonState = 0;
+int downButtonState = 0;                   
+int val=analogRead(0);      
+double temp=Thermistor(val);
 
 void setup() {
  Serial.begin(9600);
@@ -26,16 +28,7 @@ void setup() {
  pinMode(downButtonPin, INPUT);
 }
 
-void loop() {             
-  int val;                
-  double temp;         
-  val=analogRead(0);      
-  temp=Thermistor(val);
-  if (temp > setTemp) {
-    digitalWrite(8, HIGH);
-  } else {
-    digitalWrite(8, LOW);
-  }
+void getTempLoop () {
   lcd.print("Temp = ");
   lcd.print(temp);   
   lcd.print(" F");
@@ -44,6 +37,9 @@ void loop() {
   lcd.print(setTemp);
   delay(1000);            
   lcd.clear();
+}
+
+void changeTempLoop () {
   upButtonState = digitalRead(upButtonPin);
   downButtonState = digitalRead(downButtonPin);
   if (upButtonState == HIGH) {
@@ -52,4 +48,15 @@ void loop() {
   if (downButtonState == HIGH) {
     setTemp--;
   }
+}
+
+void loop() {             
+
+  if (temp > setTemp) {
+    digitalWrite(8, HIGH);
+  } else {
+    digitalWrite(8, LOW);
+  }
+  getTempLoop();
+  changeTempLoop();
 }

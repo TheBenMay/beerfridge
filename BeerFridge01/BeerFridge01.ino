@@ -1,5 +1,9 @@
 #include <math.h>
 #include <LiquidCrystal.h>
+#include <SimpleTimer.h>
+
+// the timer object
+SimpleTimer timer;
 
 LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
 
@@ -16,17 +20,9 @@ double setTemp = 65.00;
 const int upButtonPin = 7;
 const int downButtonPin = 6;
 int upButtonState = 0;
-int downButtonState = 0;                   
+int downButtonState = 0;     
 int val=analogRead(0);      
 double temp=Thermistor(val);
-
-void setup() {
- Serial.begin(9600);
- pinMode(8, OUTPUT);
- lcd.begin(16, 2);
- pinMode(upButtonPin, INPUT);
- pinMode(downButtonPin, INPUT);
-}
 
 void getTempLoop () {
   lcd.print("Temp = ");
@@ -34,10 +30,21 @@ void getTempLoop () {
   lcd.print(" F");
   lcd.setCursor(0,1);
   lcd.print("SetTemp = ");
-  lcd.print(setTemp);
-  delay(1000);            
+  lcd.print(setTemp);           
   lcd.clear();
 }
+
+
+void setup() {
+ Serial.begin(9600);
+ pinMode(8, OUTPUT);
+ lcd.begin(16, 2);
+ pinMode(upButtonPin, INPUT);
+ pinMode(downButtonPin, INPUT);
+ timer.setTime(1000, getTempLoop);
+}
+
+
 
 void changeTempLoop () {
   upButtonState = digitalRead(upButtonPin);
@@ -48,15 +55,22 @@ void changeTempLoop () {
   if (downButtonState == HIGH) {
     setTemp--;
   }
-  delay(1000);
+  delay(100);
 }
 
-void loop() {             
-  if (temp > setTemp) {
+void fridgeController(double temp,double setTemp) {
+   if (temp > setTemp) {
     digitalWrite(8, HIGH);
   } else {
     digitalWrite(8, LOW);
   }
-  getTempLoop();
+  delay(5000);
+}
+
+
+
+void loop() {
+  fridgeController(temp, setTemp);
+  timer.run()
   changeTempLoop();
 }

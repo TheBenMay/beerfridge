@@ -7,6 +7,7 @@ SimpleTimer timer;
 
 LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
 
+// Take in the analog input of the thermistor and return the actual temperature.
 double Thermistor(int RawADC) {
  double Temp;
  Temp = log(10000.0*((1024.0/RawADC-1))); 
@@ -16,15 +17,20 @@ double Thermistor(int RawADC) {
  return Temp;
 }
 
+
 double setTemp = 65.00;
 const int upButtonPin = 7;
 const int downButtonPin = 6;
 int upButtonState = 0;
-int downButtonState = 0;     
-int val=analogRead(0);      
-double temp=Thermistor(val);
+int downButtonState = 0; 
 
-void getTempLoop () {
+// Set and send the thermistor method the thermistor resistance.
+int val=analogRead(0);      
+double temp=Thermistor(val);    
+
+
+// This will display the temperature on the LCD Screen.
+void displayTempLoop () {
   lcd.print("Temp = ");
   lcd.print(temp);   
   lcd.print(" F");
@@ -35,17 +41,23 @@ void getTempLoop () {
 }
 
 
-void setup() {
- Serial.begin(9600);
- pinMode(8, OUTPUT);
- lcd.begin(16, 2);
- pinMode(upButtonPin, INPUT);
- pinMode(downButtonPin, INPUT);
- timer.setTime(1000, getTempLoop);
+// This controls turning the fridge on and off. 
+// It turns off the fridge once it is one degree F below the set temperature and it turns the fridge back on once it is one degree above the set temp.
+void fridgeController() {
+   if (temp > setTemp) {
+    double aboveTemp = setTemp + 1;
+    if (temp >= aboveTemp) {
+     digitalWrite(8, HIGH); 
+    }
+  } else {
+    double belowTemp = setTemp - 1;
+    if (temp <= belowTemp) {
+     digitalWrite(8, LOW); 
+    }
+  }
 }
 
-
-
+// This will listen for a button change and then change the set temp.
 void changeTempLoop () {
   upButtonState = digitalRead(upButtonPin);
   downButtonState = digitalRead(downButtonPin);
@@ -55,22 +67,22 @@ void changeTempLoop () {
   if (downButtonState == HIGH) {
     setTemp--;
   }
-  delay(100);
 }
 
-void fridgeController(double temp,double setTemp) {
-   if (temp > setTemp) {
-    digitalWrite(8, HIGH);
-  } else {
-    digitalWrite(8, LOW);
-  }
-  delay(5000);
+
+void setup() {
+ Serial.begin(9600);
+ pinMode(8, OUTPUT);
+ lcd.begin(16, 2);
+ pinMode(upButtonPin, INPUT);
+ pinMode(downButtonPin, INPUT);
+ timer.setInterval(1000, displayTempLoop);
+ timer.setInterval(1000, fridgeController);
+ timer.setInterval(100, changeTempLoop);
 }
 
 
 
 void loop() {
-  fridgeController(temp, setTemp);
-  timer.run()
-  changeTempLoop();
+  timer.run();
 }

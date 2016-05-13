@@ -7,6 +7,17 @@ SimpleTimer timer;
 
 LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
 
+double setTemp = 65.00;
+const int upButtonPin = 7;
+const int downButtonPin = 6;
+int upButtonState = 0;
+int downButtonState = 0; 
+
+// Set and send the thermistor method the thermistor resistance.
+int val=analogRead(0);
+double temp = 100.00;       
+
+
 // Take in the analog input of the thermistor and return the actual temperature.
 double Thermistor(int RawADC) {
  double Temp;
@@ -18,26 +29,15 @@ double Thermistor(int RawADC) {
 }
 
 
-double setTemp = 65.00;
-const int upButtonPin = 7;
-const int downButtonPin = 6;
-int upButtonState = 0;
-int downButtonState = 0; 
-
-// Set and send the thermistor method the thermistor resistance.
-int val=analogRead(0);      
-double temp=Thermistor(val);    
-
-
 // This will display the temperature on the LCD Screen.
-void displayTempLoop () {
+void displayTempLoop() {
+  lcd.clear();
   lcd.print("Temp = ");
   lcd.print(temp);   
   lcd.print(" F");
   lcd.setCursor(0,1);
   lcd.print("SetTemp = ");
   lcd.print(setTemp);           
-  lcd.clear();
 }
 
 
@@ -58,7 +58,7 @@ void fridgeController() {
 }
 
 // This will listen for a button change and then change the set temp.
-void changeTempLoop () {
+void changeTempLoop() {
   upButtonState = digitalRead(upButtonPin);
   downButtonState = digitalRead(downButtonPin);
   if (upButtonState == HIGH) {
@@ -76,7 +76,7 @@ void setup() {
  lcd.begin(16, 2);
  pinMode(upButtonPin, INPUT);
  pinMode(downButtonPin, INPUT);
- timer.setInterval(1000, displayTempLoop);
+ timer.setInterval(100, displayTempLoop);
  timer.setInterval(1000, fridgeController);
  timer.setInterval(100, changeTempLoop);
 }
@@ -84,5 +84,7 @@ void setup() {
 
 
 void loop() {
+  val=analogRead(0);
+  temp = Thermistor(val);
   timer.run();
 }

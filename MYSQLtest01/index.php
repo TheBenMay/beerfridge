@@ -8,14 +8,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="../assets/css/bootstrap.css" media="screen">
     <link rel="stylesheet" href="../assets/css/main.css">
+     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script type="text/javascript" src="https://www.google.com/jsapi"></script>
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
     <script type="text/javascript">
 
     var jsonData = <?php echo json_encode($table); ?>;
 
+
     // Load the Visualization API and the piechart package.
-    google.load('visualization', '1', {'packages':['corechart']});
+    google.load('visualization', '1', {'packages':['corechart', 'line']});
 
     // Set a callback to run when the Google Visualization API is loaded.
     google.setOnLoadCallback(drawChart);
@@ -24,12 +26,20 @@
 
       // Create our data table out of JSON data loaded from server.
       var data = new google.visualization.DataTable(jsonData);
-      var options = {
-		  'height':500
-        };
+
+        var options = {
+            hAxis: {
+              title:'Time'
+            },
+            vAxis: {
+              title:'Temperature',
+              ticks: [30, 40, 50, 60, 70, 80]
+            },
+            'height':600
+          };
       // Instantiate and draw our chart, passing in some options.
       // Do not forget to check your div ID
-      var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+      var chart = new google.visualization.AreaChart(document.getElementById('chart_div'));
       chart.draw(data, options);
     }
     </script>
@@ -52,6 +62,10 @@
           <div class="col-lg-6">
         </div>
       </div>
+
+      <div class="container">
+   	  <div id="chart_div" style="width:100%"></div>
+   	 </div>
 
 	  <div class="main" id="content">
 	  	<div class="col-lg-4">
@@ -77,19 +91,15 @@
 	 </div>
 
 	 <div class="container">
-	  <div id="chart_div" style="width:100%"></div>
-	 </div>
-
-	 <div class="container">
       <footer>
         <div class="row">
           <!-- <div class="col-lg-12">
             <p>Made by <a href="https://www.samculley.co.uk" rel="nofollow">Sam Culley</a>.  Contact him <a href="mailto:sam@samculley.co.uk">Here</a>.</p>
           </div> -->
         </div>
-<p>
-  <?php echo json_encode($table); ?>
-</p>
+      <p>
+        <?php echo json_encode($table); ?>
+      </p>
 
       </footer>
     </div>

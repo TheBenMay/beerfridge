@@ -8,7 +8,7 @@ $conn = new PDO("mysql:host=localhost;dbname=$dbname", $username, $password);
   $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
     try {
-      $result = $conn->query('SELECT * FROM temp WHERE datetime = DATE(NOW());');
+      $result = $conn->query('SELECT * FROM temp WHERE datetime > DATE_SUB(CURDATE(), INTERVAL 7 DAY);');
 
   $rows = array();
   $table = array();
@@ -17,7 +17,8 @@ $conn = new PDO("mysql:host=localhost;dbname=$dbname", $username, $password);
   foreach($result as $r) {
 
   $data = array();
-  $data[] = array('v' => (string) $r['datetime']);
+  $time = $r['datetime'];
+  $data[] = array('v' => (string) date("F jS, g:ia",strtotime($time)));
   $data[] = array('v' => (int) $r['temp']);
 
   $rows[] = array('c' => $data);
@@ -31,7 +32,7 @@ $table['rows'] = $rows;
 }
 
 try {
-  $result2 = $conn->prepare("SELECT `datetime`, `temp` FROM temp;");
+  $result2 = $conn->prepare("SELECT * FROM temp WHERE datetime >= CURDATE();");
 
   $result2->execute();
 
